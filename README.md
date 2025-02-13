@@ -30,7 +30,7 @@ Lorsque la concentration de gaz est trop grande ou que le niveau d'humidité ext
 
 1- Clonné ce répository
 
-2- Suivre ce schéma de montage ![schéma installation](schema_wokwi.png)
+2- Suivre ce schéma de montage ![schéma installation](img/schema_wokwi.png)
 
-3- Installer la lib **<DHT.h>** en utilisant le dossier zip stocker dans le dossier external_lib 
+3- Installer la lib **<dht_nonblocking.h>** 
 
