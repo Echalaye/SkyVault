@@ -1,3 +1,6 @@
-Nom d'hote: skyvault
+Nom d'hote: skyvault.local
+
 identifiant: root
 mot de passe: 1234
+
+configurer pour iphone de nathoo et A15 de etienne
