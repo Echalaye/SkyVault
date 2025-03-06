@@ -3,13 +3,14 @@ import network
 import dht
 import time
 import umqtt.simple as MQTT
+import sys
 
 # Configuration du WiFi
 WifiHosts = [
     {
-        'SSID': "A15 de Etienne", 
+        'SSID': "A15 de Etienne",
         'PASSWORD': "lustucrU"
-    }, 
+    },
     {
         'SSID': "iPhone de Nathoo",
         'PASSWORD': "RERT2070"
@@ -26,29 +27,30 @@ mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port, keepalive=30)
 
 led = Pin(2, Pin.OUT)
 
+# Connexion au WiFi
 def connect_wifi():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     connected = False
-    
+
     # Essayer de se connecter à chaque hôte WiFi
     for host in WifiHosts:
         SSID = host['SSID']
         PASSWORD = host['PASSWORD']
-                
+
         # Déconnecter d'abord si déjà connecté
         if wlan.isconnected():
             wlan.disconnect()
             time.sleep(1)
-        
+
         wlan.connect(SSID, PASSWORD)
-        
+
         max_wait = 15  # Timeout de 15 secondes
         while max_wait > 0 and not wlan.isconnected():
             max_wait -= 1
             print(".", end="")
             time.sleep(1)
-            
+
         # Vérifier si la connexion a réussi
         if wlan.isconnected():
             connected = True
@@ -58,7 +60,7 @@ def connect_wifi():
         # Clignoter 2 fois (long) si la connexion échoue
         led.on()
         time.sleep(1)
-        led.off() 
+        led.off()
         time.sleep(0.1)
         led.on()
         time.sleep(1)
@@ -78,7 +80,7 @@ def connect_to_mqtt_broker():
         led.on()
         time.sleep(1)
         led.off()
-        mqtt.reset()
+        sys.reset()
 
 
 # Initialisation du capteur DHT11
