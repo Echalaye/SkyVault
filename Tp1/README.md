@@ -30,16 +30,7 @@ Lorsque la concentration de gaz est trop grande ou que le niveau d'humidité ext
 
 1- Clonné ce répository
 
-2- Suivre ce schéma de montage ![schéma installation](img/schema_montage.png)
+2- Suivre ce schéma de montage ![schéma installation](img/schema_wokwi.png)
 
-### Set up raspberry
-- **Préparation de l'os** : installation de Raspbery pi os [here](https://www.raspberrypi.com/software/). Renommer l'hostname de la machine en skyvault.local        
-
-- **Installation de docker et docker compose** : 
-```
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh ./get-docker.sh --dry-run
-```
-- **Importe docker compose** : Récupérer le docker-compose.yml dans le dossier MQTT. Excuter la commande ``` docker compose up ```
-
+3- Installer la lib **<dht_nonblocking.h>** 
 

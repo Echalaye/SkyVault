@@ -1,4 +1,4 @@
-from machine import Pin, machine
+from machine import Pin
 import network
 import dht
 import time
@@ -78,7 +78,7 @@ def connect_to_mqtt_broker():
         led.on()
         time.sleep(1)
         led.off()
-        time.sleep(0,1)
+        time.sleep(0.1)
         led.on()
         time.sleep(1)
         led.off()
