@@ -1,6 +1,6 @@
 import network
 import time
-from umqtt.simple import MQTT
+import umqtt.simple as MQTT
 import machine
 import sys
 from machine import Pin, PWM
@@ -102,7 +102,7 @@ def mqtt_callback(topic, msg):
     lcd.clear()
     contrast_pin.duty_u16(32768)
     # Afficher le topic et le message sur le LCD
-    lcd.putstr(f"{topic_str}: {msg_str}")
+    lcd.putstr(f"{topic_str.split('/')[-1]}: {msg_str}")
     if int(msg_str) > 50:
         lcd.move_to(0, 1)
         lcd.putstr(f"Alert !")
