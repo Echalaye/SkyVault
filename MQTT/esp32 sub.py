@@ -3,6 +3,26 @@ import time
 from umqtt.simple import MQTTClient
 import machine
 import sys
+from machine import Pin
+from time import sleep
+from esp32_gpio_lcd import GpioLcd
+
+rs_pin = Pin(19, Pin.OUT)
+enable_pin = Pin(23, Pin.OUT)
+d4_pin = Pin(18, Pin.OUT)
+d5_pin = Pin(17, Pin.OUT)
+d6_pin = Pin(16, Pin.OUT)
+d7_pin = Pin(15, Pin.OUT)
+
+# LCD dimensions
+LCD_ROWS = 2
+LCD_COLS = 16
+
+# Initialize LCD
+lcd = GpioLcd(rs_pin=rs_pin, enable_pin=enable_pin,
+              d4_pin=d4_pin, d5_pin=d5_pin,
+              d6_pin=d6_pin, d7_pin=d7_pin,
+              num_lines=LCD_ROWS, num_columns=LCD_COLS)
 
 # Configuration WiFi
 ssid = "iPhone de Nathoo"
@@ -12,7 +32,7 @@ password = "RERT2070"
 mqtt_server = "skyvault.local"  # Remplacez par l'IP de votre broker MQTT
 mqtt_port = 1883
 mqtt_client_id = "ESP32_Subscriber"
-mqtt_topic = b"data/humidty"
+mqtt_topic = b"data/humidity"
 
 # Fonction pour se connecter au WiFi
 def connect_wifi():
@@ -47,6 +67,11 @@ def mqtt_callback(topic, msg):
     topic_str = topic.decode()
     msg_str = msg.decode()
     print(f"Message reçu sur le sujet [{topic_str}]: {msg_str}")
+    lcd.clear()
+    lcd.putstr(f"Humidity: {msg_str}")
+    if int(msg_str) > 50:
+        lcd.move_to(0, 1)
+        lcd.putstr(f"Alerte !")
 
 # Fonction pour se connecter au broker MQTT
 def connect_to_mqtt_broker():
@@ -82,4 +107,4 @@ while True:
     # Vérifier les messages MQTT
     mqtt_client.check_msg()
     # Petite pause pour éviter de surcharger le CPU
-    time.sleep(0.1)
+    time.sleep(1)

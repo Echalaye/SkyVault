@@ -11,8 +11,8 @@ PASSWORD = "RERT2070"
 # Configuration MQTT
 mqtt_server = "skyvault.local"
 mqtt_port = 1883
-mqtt_client_id = "ESP32_Subscriber"
-mqtt_topic = b"data/humidty"
+mqtt_client_id = "ESP32_Publisher"
+mqtt_topic = b"data/humidity"
 
 # Connexion au WiFi
 def connect_wifi():
@@ -29,7 +29,7 @@ def connect_wifi():
     print("Adresse IP:", wlan.ifconfig()[0])
     
     
-mqtt = MQTTClient(mqtt_client_id, mqtt_server, mqtt_port, keepalive=30)
+mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port, keepalive=30)
 def connect_to_mqtt_broker():
     #print("Connecting to MQTT broker")
     try:
