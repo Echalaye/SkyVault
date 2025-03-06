@@ -1,0 +1,17 @@
+{
+  "name": "mqtt-to-firebase",
+  "version": "1.0.0",
+  "description": "Bridge entre MQTT et Firebase pour ESP32",
+  "main": "mqtt-to-firebase.js",
+  "scripts": {
+    "start": "node mqtt-to-firebase.js",
+    "dev": "nodemon mqtt-to-firebase.js"
+  },
+  "dependencies": {
+    "mqtt": "^4.3.7",
+    "firebase-admin": "^11.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
