@@ -67,7 +67,7 @@ def connect_wifi():
         led.on()
         time.sleep(1)
         led.off()
-        machine.reset()
+        sys.exit()
     return wlan
 
 
