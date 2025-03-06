@@ -70,7 +70,6 @@ def connect_wifi():
         max_wait = 15  # Timeout de 15 secondes
         while max_wait > 0 and not wlan.isconnected():
             max_wait -= 1
-            print(".", end="")
             time.sleep(1)
 
         # Vérifier si la connexion a réussi
