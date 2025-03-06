@@ -3,4 +3,5 @@ Nom d'hote: skyvault.local
 identifiant: root
 mot de passe: 1234
 
-configurer pour iphone de nathoo et A15 de etienne
+Configuré pour iPhone de Nathoo et A15 de Etienne
+(nmtui)
