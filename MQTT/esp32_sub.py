@@ -25,8 +25,8 @@ lcd = GpioLcd(rs_pin=rs_pin, enable_pin=enable_pin,
               num_lines=LCD_ROWS, num_columns=LCD_COLS)
 
 # Configuration WiFi
-ssid = "iPhone de Nathoo"
-password = "RERT2070"
+ssid = "A15 de Etienne"
+password = "lustucrU"
 
 # Configuration MQTT
 mqtt_server = "skyvault.local"  # Remplacez par l'IP de votre broker MQTT

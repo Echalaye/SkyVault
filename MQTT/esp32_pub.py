@@ -3,10 +3,11 @@ import network
 import dht
 import time
 import umqtt.simple as MQTT
+import sys
 
 # Configuration du WiFi
-SSID = "iPhone de Nathoo"
-PASSWORD = "RERT2070"
+SSID = "A15 de Etienne"
+PASSWORD = "lustucrU"
 
 # Configuration MQTT
 mqtt_server = "skyvault.local"
@@ -39,13 +40,13 @@ def connect_to_mqtt_broker():
         print("An MQTT error occured while trying to connect to the MQTT broker")
         print("Note: Check your connection parameters")
         print("Context:", e)
-        mqtt.reset()
+        sys.exit()
         
     except Exception as e:
         print("An unknown error occured while trying to connect to the MQTT broker")
         print("Note: the connection most probably timed out")
         print("Context:", e)
-        mqtt.reset()
+        sys.exit()
 
 
 # Initialisation du capteur DHT11
