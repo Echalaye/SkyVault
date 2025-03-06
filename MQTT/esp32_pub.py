@@ -24,6 +24,8 @@ mqtt_client_id = "ESP32_Publisher"
 mqtt_topic = b"data/humidity"
 mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port, keepalive=30)
 
+# Initialisation du capteur DHT11
+sensor = dht.DHT11(Pin(32))
 
 led = Pin(2, Pin.OUT)
 
@@ -80,11 +82,8 @@ def connect_to_mqtt_broker():
         led.on()
         time.sleep(1)
         led.off()
-        sys.reset()
+        sys.exit()
 
-
-# Initialisation du capteur DHT11
-sensor = dht.DHT11(Pin(32))
 
 def read_humidity_sensor():
     while True:
