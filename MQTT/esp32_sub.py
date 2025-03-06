@@ -1,6 +1,6 @@
 import network
 import time
-from umqtt.simple import MQTT
+import umqtt.simple as MQTT
 import machine
 import sys
 from machine import Pin, machine
