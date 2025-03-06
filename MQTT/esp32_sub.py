@@ -76,7 +76,6 @@ def connect_wifi():
         max_wait = 15  # Timeout de 15 secondes
         while max_wait > 0 and not wlan.isconnected():
             max_wait -= 1
-            print(".", end="")
             time.sleep(1)
 
         # Vérifier si la connexion a réussi
@@ -93,31 +92,7 @@ def connect_wifi():
         led.on()
         time.sleep(1)
         led.off()
-        machine.reset()
-    return wlan    print("Connexion au réseau WiFi...")
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    
-    if not wlan.isconnected():
-        print(f"Connexion à {ssid}...")
-        wlan.connect(ssid, password)
-        
-        # Attendre la connexion avec timeout
-        max_wait = 10
-        while max_wait > 0:
-            if wlan.isconnected():
-                break
-            max_wait -= 1
-            print(".", end="")
-            time.sleep(1)
-            
-        if not wlan.isconnected():
-            print("\nÉchec de connexion au WiFi. Redémarrage...")
-            time.sleep(1)
-            machine.reset()
-    
-    print("\nConnecté au WiFi!")
-    print(f"Adresse IP: {wlan.ifconfig()[0]}")
+        sys.exit()
     return wlan
 
 # Fonction de rappel pour les messages MQTT reçus
