@@ -26,6 +26,10 @@ SkyVault est une solution composé de:
 
 Lorsque la concentration de gaz est trop grande ou que le niveau d'humidité extérieur est trop hauts la raspberry enclanche le mécanisme de fermeture du balcon (fait sonné le haut parleur) pour protéger l'utilisateur des dangers extérieurs.
 
+### Schéma de l'architecture
+
+![img](img/schemaarchi.png)
+
 # III. Installation de la solution
 
 1- Clonné ce répository
@@ -43,4 +47,20 @@ sudo sh ./get-docker.sh --dry-run
 - **Importe docker compose** : Récupérer le docker-compose.yml dans le dossier MQTT. Excuter la commande ``` docker compose up ```
 
 ### Set Up ESP32
-- **
+- **Sur l'esp32 publisher** :
+  - Ajouter le script esp32_pub.py dans l'esp32 (fichier dans le dossier MQTT)
+  - Ajouter la ligne ```import esp32_pub``` dans le fichier boot.py de l'esp32
+
+- **Sur l'esp32 subscriber** :
+  - Ajouter le script esp32_pub.py dans l'esp32 (fichier dans le dossier MQTT)
+  - Ajouter la ligne ```import esp32_sub``` dans le fichier boot.py de l'esp32
+  - Ajouter les fichier **esp32_gpio_lcd.py** et **lcd_api.py** dans l'esp32 (fichier dans le dossier library)
+
+### Set Up firebase
+- **Lancer les commande suivante**: 
+
+```bash
+cd MQTTtoFirebase/
+npm run install
+```
+
