@@ -7,7 +7,12 @@ import umqtt.simple as MQTT
 # Configuration du WiFi
 SSID = "iPhone de Nathoo"
 PASSWORD = "RERT2070"
-mqtt_topic = "data/humidty"
+
+# Configuration MQTT
+mqtt_server = "skyvault.local"
+mqtt_port = 1883
+mqtt_client_id = "ESP32_Subscriber"
+mqtt_topic = b"data/humidty"
 
 # Connexion au WiFi
 def connect_wifi():
@@ -24,7 +29,7 @@ def connect_wifi():
     print("Adresse IP:", wlan.ifconfig()[0])
     
     
-mqtt = MQTT.MQTTClient("esp32", "skyvault.local", 1883, user="esp32-pub", password="pub-pswd")
+mqtt = MQTTClient(mqtt_client_id, mqtt_server, mqtt_port, keepalive=30)
 def connect_to_mqtt_broker():
     #print("Connecting to MQTT broker")
     try:
