@@ -95,7 +95,7 @@ def mqtt_callback(topic, msg):
     msg_str = msg.decode()
     lcd.clear()
     # Afficher le topic et le message sur le LCD
-    lcd.putstr(f"{topic_str}: {msg_str}")
+    lcd.putstr(f"{topic_str.split('/')[-1]}: {msg_str}")
     if int(msg_str) > 50:
         lcd.move_to(0, 1)
         lcd.putstr(f"Alert !")
