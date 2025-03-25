@@ -6,6 +6,7 @@ import sys
 from machine import Pin, PWM
 from time import sleep
 from esp32_gpio_lcd import GpioLcd
+import webrepl
 
 contrast_pin = PWM(Pin(2))
 
@@ -59,6 +60,7 @@ led = Pin(2, Pin.OUT)
 def connect_wifi():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
+    wlan.ifconfig(('192.168.234.222','255.255.255.0','192.168.234.1','8.8.8.8'))
     connected = False
 
     # Essayer de se connecter à chaque hôte WiFi
@@ -131,6 +133,7 @@ def connect_to_mqtt_broker():
 
 # Exécution
 connect_wifi()
+webrepl.start()
 mqtt_client = connect_to_mqtt_broker()
 while True:
     mqtt_client.check_msg()

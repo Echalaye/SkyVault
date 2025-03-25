@@ -4,6 +4,7 @@ import dht
 import time
 import umqtt.simple as MQTT
 import sys
+import webrepl
 
 # Configuration du WiFi
 WifiHosts = [
@@ -33,6 +34,7 @@ led = Pin(2, Pin.OUT)
 def connect_wifi():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
+    wlan.ifconfig(('192.168.234.96','255.255.255.0','192.168.234.1','8.8.8.8'))
     connected = False
 
     # Essayer de se connecter à chaque hôte WiFi
@@ -104,5 +106,6 @@ def read_humidity_sensor():
 
 # Exécution
 connect_wifi()
+webrepl.start()
 connect_to_mqtt_broker()
 read_humidity_sensor()
