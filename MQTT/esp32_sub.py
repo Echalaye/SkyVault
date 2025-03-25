@@ -3,9 +3,15 @@ import time
 import umqtt.simple as MQTT
 import machine
 import sys
-from machine import Pin, machine
+from machine import Pin, PWM
 from time import sleep
 from esp32_gpio_lcd import GpioLcd
+
+contrast_pin = PWM(Pin(2))
+
+# Configurer la fréquence et la résolution du signal PWM
+contrast_pin.freq(5000)  # 5 kHz
+contrast_pin.duty_u16(32768)
 
 # Configuration LCD
 rs_pin = Pin(19, Pin.OUT)
@@ -35,7 +41,7 @@ WifiHosts = [
     {
         'SSID': "iPhone de Nathoo",
         'PASSWORD': "RERT2070"
-        }
+    }
 ]
 
 # Configuration MQTT
@@ -94,6 +100,7 @@ def mqtt_callback(topic, msg):
     topic_str = topic.decode()
     msg_str = msg.decode()
     lcd.clear()
+    contrast_pin.duty_u16(32768)
     # Afficher le topic et le message sur le LCD
     lcd.putstr(f"{topic_str.split('/')[-1]}: {msg_str}")
     if int(msg_str) > 50:

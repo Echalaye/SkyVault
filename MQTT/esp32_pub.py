@@ -14,7 +14,7 @@ WifiHosts = [
     {
         'SSID': "iPhone de Nathoo",
         'PASSWORD': "RERT2070"
-        }
+    }
 ]
 
 # Configuration MQTT
