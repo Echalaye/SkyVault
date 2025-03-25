@@ -2,6 +2,33 @@ const mqtt = require("mqtt");
 const admin = require("firebase-admin");
 const fs = require("fs");
 const path = require("path");
+const { InfluxDB, Point } = require("@influxdata/influxdb-client");
+const { WriteApi } = require("@influxdata/influxdb-client-apis");
+require("dotenv").config({ path: path.join(__dirname, "../InfluxDB/.env") });
+
+// Configuration InfluxDB
+const influxConfig = {
+  url: "http://localhost:8086",
+  token: process.env.INFLUXDB_ADMIN_TOKEN,
+  org: process.env.INFLUXDB_ORG,
+  bucket: process.env.INFLUXDB_BUCKET,
+};
+
+console.log("Configuration InfluxDB:", {
+  ...influxConfig,
+});
+
+// Initialiser le client InfluxDB
+const influxDB = new InfluxDB({
+  url: influxConfig.url,
+  token: influxConfig.token,
+});
+const writeApi = influxDB.getWriteApi(
+  influxConfig.org,
+  influxConfig.bucket,
+  "s",
+  1000
+);
 
 // Chemin vers votre fichier de clé de service Firebase
 const serviceAccountPath = path.join(__dirname, "serviceAccountKey.json");
@@ -129,9 +156,18 @@ client.on("message", async (topic, message) => {
       });
 
       console.log(`Données enregistrées dans Realtime Database pour ${topic}`);
+
+      // Envoyer les données vers InfluxDB
+      const point = new Point("sensor_data")
+        .tag("topic", topic)
+        .floatField("value", parseFloat(messageStr))
+        .timestamp(new Date());
+
+      await writeApi.writePoint(point);
+      console.log(`Données enregistrées dans InfluxDB pour ${topic}`);
     } catch (error) {
       console.error(
-        "Erreur lors de l'enregistrement dans Realtime Database:",
+        "Erreur lors de l'enregistrement dans la base de données:",
         error
       );
     }
@@ -159,5 +195,6 @@ client.on("error", (error) => {
 process.on("SIGINT", () => {
   console.log("Fermeture des connexions...");
   client.end();
+  writeApi.close();
   process.exit(0);
 });
