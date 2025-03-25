@@ -50,7 +50,7 @@ mqtt_server = "skyvault.local"  # Remplacez par l'IP de votre broker MQTT
 mqtt_port = 1883
 mqtt_client_id = "ESP32_Subscriber"
 mqtt_topic = b"data/humidity"
-mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port, keepalive=30)
+mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port)
 
 
 led = Pin(2, Pin.OUT)
@@ -137,4 +137,4 @@ webrepl.start()
 mqtt_client = connect_to_mqtt_broker()
 while True:
     mqtt_client.check_msg()
-    time.sleep(1)
+    time.sleep(2)
