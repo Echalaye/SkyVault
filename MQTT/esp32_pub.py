@@ -5,7 +5,6 @@ import time
 import umqtt.simple as MQTT
 import sys
 import webrepl
-import urequests
 
 # Configuration du WiFi
 WifiHosts = [
@@ -24,21 +23,11 @@ mqtt_server = "skyvault.local"
 mqtt_port = 1883
 mqtt_client_id = "ESP32_Publisher"
 mqtt_topics = {
-    "humidity": b"data/humidity",
-    "gas": b"data/gas"
+    "humidity": b"sensors/humidity",
+    "gas": b"sensors/gas",
+    "data": b"data/KPI"
 }
 mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port, keepalive=30)
-
-# Configuration Pushover
-PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json"
-PUSHOVER_USER_KEY = "ujjexh4xz6zntxf2up9v8hedqxr2ch"  # Remplacez par votre clé utilisateur Pushover
-PUSHOVER_API_TOKEN = "ajqsdqge6g3ve8vojsiwv4h376pbsa"  # Remplacez par votre token d'API Pushover
-# Seuils d'alerte
-HUMIDITY_THRESHOLD = 50
-GAS_THRESHOLD = 2000
-# Variables pour éviter les notifications répétées
-last_humidity_alert = 0  # Timestamp de la dernière alerte
-alert_cooldown = 300     # 5 minutes entre les alertes
 
 # Initialisation des capteurs
 sensor_dht = dht.DHT11(Pin(32))
@@ -46,6 +35,17 @@ sensor_gas = ADC(Pin(34))  # GPIO34 pour le capteur MQ2
 sensor_gas.atten(ADC.ATTN_11DB)  # Configuration pour une plage de 0-3.3V
 
 led = Pin(2, Pin.OUT)
+
+# Configuration Pushover
+PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json"
+PUSHOVER_USER_KEY = "ujjexh4xz6zntxf2up9v8hedqxr2ch"  # Remplacez par votre clé utilisateur Pushover
+PUSHOVER_API_TOKEN = "ajqsdqge6g3ve8vojsiwv4h376pbsa"  # Remplacez par votre token d'API Pushover
+# Seuils d'alerte
+HUMIDITY_THRESHOLD = 60
+GAS_THRESHOLD = 200
+# Variables pour éviter les notifications répétées
+last_humidity_alert = 0  # Timestamp de la dernière alerte
+alert_cooldown = 300     # 5 minutes entre les alertes
 
 # Connexion au WiFi
 def connect_wifi():
@@ -102,6 +102,13 @@ def connect_to_mqtt_broker():
         led.off()
         sys.exit()
 
+def get_system_stats():
+    return {
+        "free_ram": gc.mem_free(),
+        "cpu_freq": machine.freq(),
+        "uptime": ticks_ms() // 1000
+    }
+
 def send_pushover_notification(title, message, priority=0):
     """
     Envoie une notification via Pushover
@@ -128,13 +135,24 @@ def send_pushover_notification(title, message, priority=0):
         print(f"Erreur lors de l'envoi de la notification: {e}")
         return False
 
+def calcul_ppm(val_adc):
+    if val_adc < 500:
+        return 0  # Très faible concentration
+    elif 500 <= val_adc < 1000:
+        # Interpolation linéaire entre 0 ppm et 50 ppm
+        ppm = 0 + ((val_adc - 500) / (1000 - 500)) * (50 - 0)
+        return round(ppm, 1)
+    elif 1000 <= val_adc < 1500:
+        # Interpolation linéaire entre 50 ppm et 200 ppm
+        ppm = 50 + ((val_adc - 1000) / (1500 - 1000)) * (200 - 50)
+        return round(ppm, 1)
+    else:
+        # Concentration élevée, au-delà de 200 ppm
+        return ">200"
+
 def read_sensors():
-    global last_humidity_alert
-    
     while True:
         try:
-            current_time = time.time()
-            
             # Lecture du capteur d'humidité
             sensor_dht.measure()
             humidity = sensor_dht.humidity()
@@ -142,7 +160,7 @@ def read_sensors():
             print(f"Humidité: {humidity}%")
 
             # Si l'humidité dépasse le seuil et qu'on n'a pas envoyé d'alerte récemment
-            if humidity > HUMIDITY_THRESHOLD and (current_time - last_humidity_alert) > alert_cooldown:
+            if humidity > HUMIDITY_THRESHOLD:
                 notification_title = "Alerte Humidité"
                 notification_message = f"Le taux d'humidité est de {humidity}% (seuil: {HUMIDITY_THRESHOLD}%)"
                 
@@ -153,20 +171,25 @@ def read_sensors():
 
             # Lecture du capteur de gaz
             gas_value = sensor_gas.read()
-            mqtt.publish(mqtt_topics["gas"], str(gas_value).encode())
-            print(f"Gaz: {gas_value}")
+            ppm = calcul_ppm(gas_value)  # <<< Calcul du ppm
+            mqtt.publish(mqtt_topics["gas"], str(ppm).encode())
+            print(f"Gaz: {gas_value} | Estimation propane : {ppm} ppm")
             
-            # Alerte si le niveau de gaz est trop élevé
-            if gas_value > GAS_THRESHOLD:
+                        # Alerte si le niveau de gaz est trop élevé
+            if ppm > GAS_THRESHOLD:
                 notification_title = "Alerte Gaz"
-                notification_message = f"Niveau de gaz élevé: {gas_value} (seuil: {GAS_THRESHOLD})"
+                notification_message = f"Niveau de gaz élevé: {ppm} (seuil: {GAS_THRESHOLD})"
                 
                 # Envoi de la notification avec une priorité d'urgence (2)
                 send_pushover_notification(notification_title, notification_message, 2)
                 print("Alerte gaz envoyée")
+            
+            stats = get_system_stats()
+            kpi_data = f"{stats['free_ram']},{stats['cpu_freq']},{stats['uptime']}"
+            mqtt.publish(mqtt_topics["data"], kpi_data)
+
 
         except Exception as e:
-            print(f"Erreur: {e}")
             led.on()
             time.sleep(1)
             led.off()

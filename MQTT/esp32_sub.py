@@ -51,15 +51,15 @@ mqtt_server = "skyvault.local"  # Remplacez par l'IP de votre broker MQTT
 mqtt_port = 1883
 mqtt_client_id = "ESP32_Subscriber"
 mqtt_topics = {
-    "humidity": b"data/humidity",
-    "gas": b"data/gas"
+    "humidity": b"sensors/humidity",
+    "gas": b"sensors/gas"
 }
 mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port)
 
 # Threshold configuration
 ALERT_THRESHOLDS = {
-    "humidity": 50,
-    "gas": 2000
+    "humidity": 60,
+    "gas": 200
 }
 
 # Latest sensor values storage
