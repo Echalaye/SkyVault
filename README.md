@@ -13,7 +13,11 @@
 
 1- Clonné ce répository
 
-2- Suivre ce schéma de montage ![schéma installation](img/schema_montage.png)
+2- Suivre le schéma d'installation dans le dossier **schema**.
+
+> [!WARNING] 
+> Pour voir le schéma ouvrez [wokwi](https://wokwi.com/projects/305568836183130690)
+> Copiez collez le fichier .json dans le **diagram.json** sur wokwi
 
 ### A. Set up raspberry
 - **Préparation de l'os** : installation de Raspbery pi os [here](https://www.raspberrypi.com/software/). Renommer l'hostname de la machine en skyvault.local        
@@ -43,7 +47,7 @@ sudo sh ./get-docker.sh --dry-run
   - Definissez un mot de passe
   - Maintenant suivez ce [tuto](https://bhave.sh/micropython-webrepl-thonny/)
 
-> :speech_balloon:
+> [!NOTE]
 > L'adresse IP est statique c'est: 192.168.234.96.
 > N'oubliez pas de mettre votre mot de passe.
 
@@ -53,7 +57,7 @@ sudo sh ./get-docker.sh --dry-run
   - Definissez un mot de passe
   - Maintenant suivez ce [tuto](https://bhave.sh/micropython-webrepl-thonny/)
 
-> :speech_balloon:
+> [!NOTE]
 > L'adresse IP est statique c'est: 192.168.234.222.
 > N'oubliez pas de mettre votre mot de passe.
 
