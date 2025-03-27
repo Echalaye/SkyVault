@@ -1,4 +1,4 @@
-from machine import Pin
+from machine import Pin, ADC
 import network
 import dht
 import time
@@ -22,11 +22,16 @@ WifiHosts = [
 mqtt_server = "skyvault.local"
 mqtt_port = 1883
 mqtt_client_id = "ESP32_Publisher"
-mqtt_topic = b"data/humidity"
+mqtt_topics = {
+    "humidity": b"data/humidity",
+    "gas": b"data/gas"
+}
 mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port, keepalive=30)
 
-# Initialisation du capteur DHT11
-sensor = dht.DHT11(Pin(32))
+# Initialisation des capteurs
+sensor_dht = dht.DHT11(Pin(32))
+sensor_gas = ADC(Pin(36))  # GPIO36 pour le capteur MQ2
+sensor_gas.atten(ADC.ATTN_11DB)  # Configuration pour une plage de 0-3.3V
 
 led = Pin(2, Pin.OUT)
 
@@ -72,7 +77,6 @@ def connect_wifi():
         sys.exit()
     return wlan
 
-
 def connect_to_mqtt_broker():
     try:
         mqtt.connect()        
@@ -86,26 +90,32 @@ def connect_to_mqtt_broker():
         led.off()
         sys.exit()
 
-
-def read_humidity_sensor():
+def read_sensors():
     while True:
         try:
-            sensor.measure()
-            humidity = sensor.humidity()
-            mqtt.publish(mqtt_topic, str(humidity).encode())
+            # Lecture du capteur d'humidité
+            sensor_dht.measure()
+            humidity = sensor_dht.humidity()
+            mqtt.publish(mqtt_topics["humidity"], str(humidity).encode())
+            print(f"Humidité: {humidity}%")
+
+            # Lecture du capteur de gaz
+            gas_value = sensor_gas.read()
+            mqtt.publish(mqtt_topics["gas"], str(gas_value).encode())
+            print(f"Gaz: {gas_value}")
+
         except Exception as e:
             led.on()
             time.sleep(1)
             led.off()
-            time.sleep(0,1)
+            time.sleep(0.1)
             led.on()
             time.sleep(1)
             led.off()
         time.sleep(2)
 
-
 # Exécution
 connect_wifi()
 webrepl.start()
 connect_to_mqtt_broker()
-read_humidity_sensor()
+read_sensors()
