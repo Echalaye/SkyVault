@@ -4,14 +4,14 @@
 
 - [SkyVault](#SkyVault)
   - [I- Installation de la solution](#i-installation-de-la-solution)
-    - [A. Set Up Raspberry](#setuptrasp)
+    - [A. Set Up Raspberry](#a-set-up-raspberry)
 # I. Installation de la solution
 
 1- Clonné ce répository
 
 2- Suivre ce schéma de montage ![schéma installation](img/schema_montage.png)
 
-### A. Set up raspberry <a name=setuprasp />
+### A. Set up raspberry
 - **Préparation de l'os** : installation de Raspbery pi os [here](https://www.raspberrypi.com/software/). Renommer l'hostname de la machine en skyvault.local        
 
 - **Installation de docker et docker compose** : 
