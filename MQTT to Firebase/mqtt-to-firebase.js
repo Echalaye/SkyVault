@@ -43,7 +43,7 @@ const mqttConfig = {
 };
 
 // Sujets MQTT à écouter - Ajout de plus de sujets pour capturer toutes les données
-const topics = ["data/humidity"];
+const topics = ["sensors/humidity", "sensors/gas"];
 
 // Initialiser Firebase Admin
 try {
@@ -138,16 +138,19 @@ client.on("message", async (topic, message) => {
 
     console.log(`Message reçu sur ${topic}: ${messageStr}`);
 
-    // Ajouter des métadonnées
+    // Extraire le nom du capteur du sujet (ex: "sensors/gas" -> "gas")
+    const sensorName = topic.split("/").pop();
+
+    // Ajouter des métadonnées avec la nouvelle structure simplifiée
     const record = {
       value: messageStr,
-      topic,
+      topic: topic,
     };
 
     // Stocker dans Realtime Database
     try {
-      // Créer une structure de chemin basée sur le sujet
-      const dbPath = `sensors/${topic.replace(/\//g, "_")}`;
+      // Créer une structure de chemin simplifiée
+      const dbPath = `sensors/${sensorName}`;
 
       // Stocker la dernière valeur
       await realtimeDb.ref(dbPath).set({
@@ -155,7 +158,9 @@ client.on("message", async (topic, message) => {
         last_updated: admin.database.ServerValue.TIMESTAMP,
       });
 
-      console.log(`Données enregistrées dans Realtime Database pour ${topic}`);
+      console.log(
+        `Données enregistrées dans Realtime Database pour ${sensorName}`
+      );
 
       // Envoyer les données vers InfluxDB
       const point = new Point("sensor_data")
