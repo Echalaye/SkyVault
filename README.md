@@ -47,7 +47,7 @@ sudo sh ./get-docker.sh --dry-run
   - Definissez un mot de passe
   - Maintenant suivez ce [tuto](https://bhave.sh/micropython-webrepl-thonny/)
 
-> :speech_balloon:
+> [!NOTE]
 > L'adresse IP est statique c'est: 192.168.234.96.
 > N'oubliez pas de mettre votre mot de passe.
 
@@ -57,7 +57,7 @@ sudo sh ./get-docker.sh --dry-run
   - Definissez un mot de passe
   - Maintenant suivez ce [tuto](https://bhave.sh/micropython-webrepl-thonny/)
 
-> :speech_balloon:
+> [!NOTE]
 > L'adresse IP est statique c'est: 192.168.234.222.
 > N'oubliez pas de mettre votre mot de passe.
 
