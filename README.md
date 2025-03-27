@@ -11,7 +11,7 @@
 
 2- Suivre ce schéma de montage ![schéma installation](img/schema_montage.png)
 
-### A. Set up raspberry <a name="setuprasp"/>
+### A. Set up raspberry <a name=setuprasp />
 - **Préparation de l'os** : installation de Raspbery pi os [here](https://www.raspberrypi.com/software/). Renommer l'hostname de la machine en skyvault.local        
 
 - **Installation de docker et docker compose** : 
