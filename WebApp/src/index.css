@@ -1,0 +1,355 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Effets de boutons en mode clair */
+  --button-hover-opacity: 0.9;
+  --button-active-scale: 0.98;
+  --button-active-opacity: 0.85;
+  --button-transition: all 0.15s ease;
+  --button-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --button-shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --button-shadow-active: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --button-disabled-opacity: 0.5;
+  --button-ghost-bg-hover: rgba(0, 0, 0, 0.05);
+  --button-ghost-bg-active: rgba(0, 0, 0, 0.1);
+  --glow-color: rgba(50, 50, 255, 0.3);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+
+  /* Effets de boutons en mode sombre */
+  --button-hover-opacity: 0.85;
+  --button-active-scale: 0.97;
+  --button-active-opacity: 0.8;
+  --button-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  --button-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --button-shadow-active: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --button-disabled-opacity: 0.4;
+  --button-ghost-bg-hover: rgba(255, 255, 255, 0.07);
+  --button-ghost-bg-active: rgba(255, 255, 255, 0.12);
+  --glow-color: rgba(100, 150, 255, 0.5);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Styles personnalisés pour les boutons */
+@layer components {
+  [data-slot="button"] {
+    box-shadow: var(--button-shadow);
+    transition: var(--button-transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  [data-slot="button"]:hover {
+    opacity: var(--button-hover-opacity);
+    box-shadow: var(--button-shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  [data-slot="button"]:active {
+    opacity: var(--button-active-opacity);
+    transform: scale(var(--button-active-scale)) translateY(0);
+    box-shadow: var(--button-shadow-active);
+  }
+
+  /* Effet de ripple au clic */
+  [data-slot="button"]::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(
+      circle,
+      currentColor 10%,
+      transparent 10.01%
+    );
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.4s, opacity 0.8s;
+  }
+
+  [data-slot="button"]:active::after {
+    transform: scale(0, 0);
+    opacity: 0.2;
+    transition: 0s;
+  }
+
+  /* Styles spécifiques pour les variantes de boutons */
+  [data-slot="button"][class*="variant-default"] {
+    border: 1px solid transparent;
+  }
+
+  [data-slot="button"][class*="variant-outline"]:hover {
+    border-color: var(--color-primary);
+  }
+
+  [data-slot="button"][class*="variant-destructive"]:hover {
+    filter: brightness(1.1);
+  }
+
+  [data-slot="button"][class*="variant-secondary"]:hover {
+    filter: brightness(0.95);
+  }
+
+  /* Styles pour les boutons ghost */
+  [data-slot="button"][class*="variant-ghost"] {
+    box-shadow: none;
+  }
+
+  [data-slot="button"][class*="variant-ghost"]:hover {
+    background-color: var(--button-ghost-bg-hover);
+    box-shadow: none;
+  }
+
+  [data-slot="button"][class*="variant-ghost"]:active {
+    background-color: var(--button-ghost-bg-active);
+  }
+
+  /* Styles pour les boutons désactivés */
+  [data-slot="button"]:disabled {
+    opacity: var(--button-disabled-opacity) !important;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Effet de focus visible */
+  [data-slot="button"]:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  /* Animations spéciales */
+  [data-slot="button"].glow {
+    animation: button-glow 2s infinite;
+  }
+
+  [data-slot="button"].scale {
+    animation: button-scale 2s ease-in-out infinite;
+  }
+
+  [data-slot="button"].shake {
+    animation: button-shake 0.5s ease-in-out;
+  }
+
+  [data-slot="button"][class*="variant-destructive"]:hover.shake-on-hover:not(
+      :disabled
+    ) {
+    animation: button-shake 0.5s ease-in-out;
+  }
+
+  /* Effet de progression */
+  .button-progress {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .button-progress::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--progress, 0%);
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.2)
+    );
+    transition: width 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Effet de bordure brillante */
+  [data-slot="button"].shiny-border {
+    border: 1px solid transparent;
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    position: relative;
+  }
+
+  [data-slot="button"].shiny-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      45deg,
+      var(--color-primary),
+      transparent,
+      var(--color-primary)
+    );
+    mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+    mask-composite: exclude;
+    animation: border-rotate 3s linear infinite;
+    z-index: -1;
+  }
+
+  @keyframes border-rotate {
+    0% {
+      background-position: 0% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+}
+
+/* Keyframes pour les animations */
+@keyframes button-glow {
+  0% {
+    box-shadow: 0 0 5px var(--glow-color);
+  }
+  50% {
+    box-shadow: 0 0 15px var(--glow-color), 0 0 20px var(--glow-color);
+  }
+  100% {
+    box-shadow: 0 0 5px var(--glow-color);
+  }
+}
+
+@keyframes button-scale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes button-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-1px);
+  }
+  40%,
+  80% {
+    transform: translateX(1px);
+  }
+}
