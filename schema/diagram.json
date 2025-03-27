@@ -37,7 +37,11 @@
         "left": 562.8,
         "rotate": 180,
         "attrs": {}
-      }
+      },
+      { "type": "wokwi-vcc", "id": "vcc1", "top": -66.44, "left": 662.4, "attrs": {} },
+      { "type": "wokwi-gnd", "id": "gnd1", "top": -47.1, "left": 680.5, "rotate": 270, "attrs": {} },
+      { "type": "wokwi-vcc", "id": "vcc2", "top": 292.8, "left": 92.16, "rotate": 270, "attrs": {} },
+      { "type": "wokwi-gnd", "id": "gnd2", "top": 316.8, "left": 105, "attrs": {} }
     ],
     "connections": [
       [ "dht1:GND", "bb2:bn.41", "black", [ "v0" ] ],
@@ -51,7 +55,6 @@
       [ "bb2:19t.e", "bb2:19b.f", "red", [ "v0" ] ],
       [ "bb2:19b.j", "bb2:bp.15", "red", [ "v0" ] ],
       [ "bb2:14t.e", "bb2:14b.f", "black", [ "v0" ] ],
-      [ "bb2:14b.j", "bb2:bp.11", "black", [ "v0" ] ],
       [ "lcd1:K", "bb1:tn.27", "black", [ "v0" ] ],
       [ "lcd1:A", "bb1:tp.26", "red", [ "v0" ] ],
       [ "lcd1:D7", "bb1:32t.a", "blue", [ "v0" ] ],
@@ -103,6 +106,9 @@
       [ "esp3:D3", "bb2:61t.c", "", [ "$bb" ] ],
       [ "esp3:CMD", "bb2:62t.c", "", [ "$bb" ] ],
       [ "esp3:5V", "bb2:63t.c", "", [ "$bb" ] ],
+      [ "bb2:14b.j", "bb2:bn.11", "black", [ "v0" ] ],
+      [ "bb2:63t.e", "bb2:bp.50", "red", [ "v19.2", "h-19.2" ] ],
+      [ "bb2:58t.e", "bb2:bn.47", "black", [ "v0" ] ],
       [ "esp2:0", "bb1:14b.i", "", [ "$bb" ] ],
       [ "esp2:2", "bb1:15b.i", "", [ "$bb" ] ],
       [ "esp2:4", "bb1:13b.i", "", [ "$bb" ] ],
@@ -140,7 +146,11 @@
       [ "esp2:D2", "bb2:16t.c", "", [ "$bb" ] ],
       [ "esp2:D3", "bb2:17t.c", "", [ "$bb" ] ],
       [ "esp2:CMD", "bb2:18t.c", "", [ "$bb" ] ],
-      [ "esp2:5V", "bb2:19t.c", "", [ "$bb" ] ]
+      [ "esp2:5V", "bb2:19t.c", "", [ "$bb" ] ],
+      [ "vcc1:VCC", "bb1:tp.50", "", [ "$bb" ] ],
+      [ "gnd1:GND", "bb1:tn.50", "", [ "$bb" ] ],
+      [ "gnd2:GND", "bb2:bn.1", "", [ "$bb" ] ],
+      [ "vcc2:VCC", "bb2:bp.1", "", [ "$bb" ] ]
     ],
     "dependencies": {}
   }
