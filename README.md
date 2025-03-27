@@ -13,7 +13,11 @@
 
 1- Clonné ce répository
 
-2- Suivre ce schéma de montage ![schéma installation](img/schema_montage.png)
+2- Suivre le schéma d'installation dans le dossier **schema**.
+
+> [!WARNING] 
+> Pour voir le schéma ouvrez [wokwi](https://wokwi.com/projects/305568836183130690)
+> Copiez collez le fichier .json dans le **diagram.json** sur wokwi
 
 ### A. Set up raspberry
 - **Préparation de l'os** : installation de Raspbery pi os [here](https://www.raspberrypi.com/software/). Renommer l'hostname de la machine en skyvault.local        
