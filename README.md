@@ -44,8 +44,8 @@ sudo sh ./get-docker.sh --dry-run
   - Maintenant suivez ce [tuto](https://bhave.sh/micropython-webrepl-thonny/)
 
 > :speech_balloon:
-> L'adresse IP est statique c'est: 192.168.234.96
-> N'oubliez pas de mettre votre mot de passe
+> L'adresse IP est statique c'est: 192.168.234.96.
+> N'oubliez pas de mettre votre mot de passe.
 
 - **Sur l'esp32 subscriber** :
   - Connectez-vous a l'esp32
@@ -54,8 +54,8 @@ sudo sh ./get-docker.sh --dry-run
   - Maintenant suivez ce [tuto](https://bhave.sh/micropython-webrepl-thonny/)
 
 > :speech_balloon:
-> L'adresse IP est statique c'est: 192.168.234.222
-> N'oubliez pas de mettre votre mot de passe
+> L'adresse IP est statique c'est: 192.168.234.222.
+> N'oubliez pas de mettre votre mot de passe.
 
 ### D. Set Up Firebase
 - **Lancer les commande suivante sur votre odinateur**: 
