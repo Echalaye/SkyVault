@@ -140,7 +140,11 @@ export function RaspberryCard() {
             }`}
           >
             <div className="flex flex-col items-center">
-              <RefreshCwIcon className="animate-spin h-8 w-8 mb-2" />
+              <RefreshCwIcon
+                className={`animate-spin h-8 w-8 mb-2 ${
+                  isDarkMode ? "text-blue-400" : "text-blue-600"
+                }`}
+              />
               <span>Chargement...</span>
             </div>
           </div>
@@ -174,8 +178,16 @@ export function RaspberryCard() {
               >
                 {raspberryData.humidity.value}%
               </div>
-              <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center">
-                <RefreshCwIcon className="animate-spin h-6 w-6 text-white" />
+              <div
+                className={`absolute inset-0 flex items-center justify-center ${
+                  isDarkMode ? "bg-zinc-900/40" : "bg-white/40"
+                }`}
+              >
+                <RefreshCwIcon
+                  className={`animate-spin h-6 w-6 ${
+                    isDarkMode ? "text-blue-400" : "text-blue-600"
+                  }`}
+                />
               </div>
             </div>
 
@@ -207,8 +219,16 @@ export function RaspberryCard() {
                 >
                   {raspberryData.gas.value} ppm
                 </div>
-                <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center">
-                  <RefreshCwIcon className="animate-spin h-6 w-6 text-white" />
+                <div
+                  className={`absolute inset-0 flex items-center justify-center ${
+                    isDarkMode ? "bg-zinc-900/40" : "bg-white/40"
+                  }`}
+                >
+                  <RefreshCwIcon
+                    className={`animate-spin h-6 w-6 ${
+                      isDarkMode ? "text-orange-400" : "text-orange-600"
+                    }`}
+                  />
                 </div>
               </div>
             )}
