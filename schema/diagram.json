@@ -41,7 +41,23 @@
     { "type": "wokwi-vcc", "id": "vcc1", "top": -66.44, "left": 662.4, "attrs": {} },
     { "type": "wokwi-gnd", "id": "gnd1", "top": -47.1, "left": 680.5, "rotate": 270, "attrs": {} },
     { "type": "wokwi-vcc", "id": "vcc2", "top": 292.8, "left": 92.16, "rotate": 270, "attrs": {} },
-    { "type": "wokwi-gnd", "id": "gnd2", "top": 316.8, "left": 105, "attrs": {} }
+    { "type": "wokwi-gnd", "id": "gnd2", "top": 316.8, "left": 105, "attrs": {} },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 253.85,
+      "left": 382.6,
+      "rotate": 180,
+      "attrs": { "value": "10000" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 234.65,
+      "left": 401.8,
+      "rotate": 180,
+      "attrs": { "value": "5100" }
+    }
   ],
   "connections": [
     [ "dht1:GND", "bb2:bn.41", "black", [ "v0" ] ],
@@ -187,8 +203,16 @@
     [ "gnd1:GND", "bb1:tn.50", "", [ "$bb" ] ],
     [ "vcc2:VCC", "bb2:bp.1", "", [ "$bb" ] ],
     [ "gnd2:GND", "bb2:bn.1", "", [ "$bb" ] ],
-    [ "bb2:49t.e", "bb2:40b.f", "blue", [ "v9.6", "h-86.4" ] ],
-    [ "gas1:AOUT", "bb2:40b.j", "blue", [ "v0" ] ]
+    [ "gas1:AOUT", "bb2:40b.j", "blue", [ "v0" ] ],
+    [ "bb2:49t.e", "bb2:32b.f", "blue", [ "v9.6", "h-163.2" ] ],
+    [ "bb2:31b.j", "bb2:bn.25", "black", [ "v0" ] ],
+    [ "r2:1", "bb2:39b.f", "", [ "$bb" ] ],
+    [ "r2:2", "bb2:33b.f", "", [ "$bb" ] ],
+    [ "bb2:40b.g", "bb2:39b.g", "blue", [ "v0" ] ],
+    [ "bb2:32b.g", "bb2:33b.g", "blue", [ "v0" ] ],
+    [ "r1:1", "bb2:37b.h", "", [ "$bb" ] ],
+    [ "r1:2", "bb2:31b.h", "", [ "$bb" ] ],
+    [ "bb2:40b.i", "bb2:37b.i", "black", [ "v0" ] ]
   ],
   "serialMonitor": { "display": "always", "newline": "lf", "convertEol": false },
   "dependencies": {}
