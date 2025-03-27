@@ -30,7 +30,7 @@ mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port, keepalive=30)
 
 # Initialisation des capteurs
 sensor_dht = dht.DHT11(Pin(32))
-sensor_gas = ADC(Pin(27))  # GPIO27 pour le capteur MQ2
+sensor_gas = ADC(Pin(34))  # GPIO34 pour le capteur MQ2
 sensor_gas.atten(ADC.ATTN_11DB)  # Configuration pour une plage de 0-3.3V
 
 led = Pin(2, Pin.OUT)
@@ -119,3 +119,4 @@ connect_wifi()
 webrepl.start()
 connect_to_mqtt_broker()
 read_sensors()
+
