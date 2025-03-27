@@ -8,6 +8,7 @@ from time import sleep
 from esp32_gpio_lcd import GpioLcd
 import webrepl
 
+
 contrast_pin = PWM(Pin(2))
 
 # Configurer la fréquence et la résolution du signal PWM
@@ -42,16 +43,30 @@ WifiHosts = [
     {
         'SSID': "iPhone de Nathoo",
         'PASSWORD': "RERT2070"
-    }
+        }
 ]
 
 # Configuration MQTT
 mqtt_server = "skyvault.local"  # Remplacez par l'IP de votre broker MQTT
 mqtt_port = 1883
 mqtt_client_id = "ESP32_Subscriber"
-mqtt_topic = b"data/humidity"
+mqtt_topics = {
+    "humidity": b"data/humidity",
+    "gas": b"data/gas"
+}
 mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port)
 
+# Threshold configuration
+ALERT_THRESHOLDS = {
+    "humidity": 50,
+    "gas": 2000
+}
+
+# Latest sensor values storage
+latest_values = {
+    "humidity": "N/A",
+    "gas": "N/A"
+}
 
 led = Pin(2, Pin.OUT)
 
@@ -59,6 +74,8 @@ led = Pin(2, Pin.OUT)
 # Connexion au WiFi
 def connect_wifi():
     wlan = network.WLAN(network.STA_IF)
+    
+    
     wlan.active(True)
     wlan.ifconfig(('192.168.234.222','255.255.255.0','192.168.234.1','8.8.8.8'))
     connected = False
@@ -99,15 +116,43 @@ def connect_wifi():
 
 # Fonction de rappel pour les messages MQTT reçus
 def mqtt_callback(topic, msg):
+       # Update values
     topic_str = topic.decode()
     msg_str = msg.decode()
+    
+    if topic == mqtt_topics["humidity"]:
+        latest_values["humidity"] = msg_str
+    elif topic == mqtt_topics["gas"]:
+        latest_values["gas"] = msg_str
+
+    # Update display
     lcd.clear()
     contrast_pin.duty_u16(32768)
-    # Afficher le topic et le message sur le LCD
-    lcd.putstr(f"{topic_str.split('/')[-1]}: {msg_str}")
-    if int(msg_str) > 50:
+    
+    # First line: Values display
+    lcd.putstr(f"h:{latest_values['humidity']:>3} g:{latest_values['gas']:>3}")
+    
+    # Second line: Alert check
+    alert_triggered = False
+    try:
+        if int(latest_values['humidity']) > ALERT_THRESHOLDS['humidity']:
+            alert_triggered = True
+    except (ValueError, TypeError):
+        pass
+    
+    try:
+        if int(latest_values['gas']) > ALERT_THRESHOLDS['gas']:
+            alert_triggered = True
+    except (ValueError, TypeError):
+        pass
+
+    if alert_triggered:
         lcd.move_to(0, 1)
-        lcd.putstr(f"Alert !")
+        lcd.putstr("Alerte !")
+
+def connect_to_webrepl():
+    webrepl.start()
+    time.sleep(2)
 
 # Fonction pour se connecter au broker MQTT
 def connect_to_mqtt_broker():
@@ -115,8 +160,8 @@ def connect_to_mqtt_broker():
     mqtt.set_callback(mqtt_callback)
     try:
         mqtt.connect()        
-        # S'abonner au sujet
-        mqtt.subscribe(mqtt_topic)
+        for topic in mqtt_topics.values():
+            mqtt.subscribe(topic)
         
     except Exception as e:
         led.on()
@@ -133,8 +178,10 @@ def connect_to_mqtt_broker():
 
 # Exécution
 connect_wifi()
-webrepl.start()
+connect_to_webrepl()
+
 mqtt_client = connect_to_mqtt_broker()
 while True:
     mqtt_client.check_msg()
-    time.sleep(2)
+    time.sleep(1)
+    print("end loop")
