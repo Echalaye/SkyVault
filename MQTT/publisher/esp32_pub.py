@@ -120,7 +120,7 @@ def get_system_stats():
         return {
             "free_ram": gc.mem_free(),
             "cpu_freq": machine.freq(),
-            "uptime": time.ticks_ms() // 1000  # Utilisez time.ticks_ms()
+            "uptime": time.ticks_ms()
         }
     except Exception as e:
         print(f"Erreur lors de la récupération des stats: {e}")
