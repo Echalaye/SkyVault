@@ -7,6 +7,7 @@ from machine import Pin, PWM
 from time import sleep
 from esp32_gpio_lcd import GpioLcd
 import webrepl
+import urequests
 
 
 contrast_pin = PWM(Pin(2))
@@ -34,16 +35,17 @@ lcd = GpioLcd(rs_pin=rs_pin, enable_pin=enable_pin,
               num_lines=LCD_ROWS, num_columns=LCD_COLS)
 
 # Configuration WiFi
-# Configuration du WiFi
 WifiHosts = [
     {
-        'SSID': "A15 de Etienne",
-        'PASSWORD': "lustucrU"
+        'SSID': "iPhone de Nathoo",
+        'PASSWORD': "N397b7nh",
+        'connect' : True
     },
     {
-        'SSID': "iPhone de Nathoo",
-        'PASSWORD': "RERT2070"
-        }
+        'SSID': "A15 de Etienne",
+        'PASSWORD': "lustucrU",
+        'connect' : True
+    }
 ]
 
 # Configuration MQTT
@@ -73,15 +75,16 @@ led = Pin(2, Pin.OUT)
 
 # Connexion au WiFi
 def connect_wifi():
+    print(f"Connexion Wi-Fi...")
+    time.sleep(0.1)
     wlan = network.WLAN(network.STA_IF)
-    
-    
     wlan.active(True)
-    wlan.ifconfig(('192.168.234.222','255.255.255.0','192.168.234.1','8.8.8.8'))
     connected = False
 
     # Essayer de se connecter à chaque hôte WiFi
     for host in WifiHosts:
+        #if host['connect'] == True:
+            #wlan.ifconfig(('192.168.234.222','255.255.255.0','192.168.234.1','8.8.8.8'))
         SSID = host['SSID']
         PASSWORD = host['PASSWORD']
 
@@ -91,6 +94,7 @@ def connect_wifi():
             time.sleep(1)
 
         wlan.connect(SSID, PASSWORD)
+        time.sleep(0.1)
 
         max_wait = 15  # Timeout de 15 secondes
         while max_wait > 0 and not wlan.isconnected():
@@ -99,11 +103,13 @@ def connect_wifi():
 
         # Vérifier si la connexion a réussi
         if wlan.isconnected():
+            print("Connexion Wi-Fi ok.")
             connected = True
             break  # Sortir de la boucle si connecté
     
     if not connected:
         # Clignoter 2 fois (long) si la connexion échoue
+        print("Echec lors de la connexion Wi-Fi")
         led.on()
         time.sleep(1)
         led.off()
@@ -116,7 +122,7 @@ def connect_wifi():
 
 # Fonction de rappel pour les messages MQTT reçus
 def mqtt_callback(topic, msg):
-       # Update values
+    # Update values
     topic_str = topic.decode()
     msg_str = msg.decode()
     
@@ -156,32 +162,54 @@ def connect_to_webrepl():
 
 # Fonction pour se connecter au broker MQTT
 def connect_to_mqtt_broker():
-    # Définir la fonction de rappel
     mqtt.set_callback(mqtt_callback)
     try:
-        mqtt.connect()        
+        print("Connexion au broker MQTT...")
+        time.sleep(1)
+        mqtt.connect()
+        print("Connecté ! Abonnement aux topics...")
         for topic in mqtt_topics.values():
             mqtt.subscribe(topic)
-        
+        print("Abonnement réussi.")
+        return mqtt
     except Exception as e:
+        print(f"Erreur MQTT: {e}")
+        print("Arrêt du programme.")
+        for _ in range(5):
+            led.on()
+            time.sleep(0.5)
+            led.off()
+            time.sleep(0.5)
+        return None
+
+# Exécution principal
+def main():
+    try:
+        # Conexion Wi-Fi
+        wlan = connect_wifi()
+        if not wlan:
+            print("Impossible de continuer sans connexion WiFi")
+            return
+        
+        # Connexion WebREPL
+        connect_to_webrepl()
+
+        # Connexion MQTT
+        mqtt_client = connect_to_mqtt_broker()
+        if not mqtt_client:
+            print("Échec de la connexion MQTT. Arrêt du programme.")
+            return
+
+        while True:
+            mqtt_client.check_msg()
+            time.sleep(1)
+            print("Lecture des données sur l'ecran LCD...")
+    except Exception as e:
+        print(f"Erreur lors de l'éxécution: {e}")
         led.on()
-        time.sleep(1)
+        time.sleep(0.5)
         led.off()
-        time.sleep(0,1)
-        led.on()
-        time.sleep(1)
-        led.off()
-        sys.exit()
-    return mqtt
+        time.sleep(0.5)
 
-
-
-# Exécution
-connect_wifi()
-connect_to_webrepl()
-
-mqtt_client = connect_to_mqtt_broker()
-while True:
-    mqtt_client.check_msg()
-    time.sleep(1)
-    print("end loop")
+if __name__ == "__main__":
+    main()
