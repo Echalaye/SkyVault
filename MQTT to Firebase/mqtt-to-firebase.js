@@ -39,11 +39,20 @@ const mqttConfig = {
   port: 1883,
   username: "admin", // Si configuré dans mosquitto.conf
   password: "admin", // Si configuré dans mosquitto.conf
+  // Génère un identifiant client unique pour éviter les conflits de connexion MQTT
+  // L'identifiant aléatoire permet à plusieurs instances du bridge de fonctionner simultanément
+  // sans risquer d'avoir des problèmes de connexions refusées par le broker MQTT
   clientId: "mqtt-firebase-bridge-" + Math.random().toString(16).substr(2, 8),
 };
 
 // Sujets MQTT à écouter - Ajout de plus de sujets pour capturer toutes les données
-const topics = ["sensors/humidity", "sensors/gas"];
+const topics = [
+  "sensors/humidity",
+  "sensors/gas",
+  "kpi/free_ram",
+  "kpi/cpu_freq",
+  "kpi/uptime",
+];
 
 // Initialiser Firebase Admin
 try {
@@ -138,9 +147,6 @@ client.on("message", async (topic, message) => {
 
     console.log(`Message reçu sur ${topic}: ${messageStr}`);
 
-    // Extraire le nom du capteur du sujet (ex: "sensors/gas" -> "gas")
-    const sensorName = topic.split("/").pop();
-
     // Ajouter des métadonnées avec la nouvelle structure simplifiée
     const record = {
       value: messageStr,
@@ -149,18 +155,13 @@ client.on("message", async (topic, message) => {
 
     // Stocker dans Realtime Database
     try {
-      // Créer une structure de chemin simplifiée
-      const dbPath = `sensors/${sensorName}`;
-
       // Stocker la dernière valeur
-      await realtimeDb.ref(dbPath).set({
+      await realtimeDb.ref(topic).set({
         ...record,
         last_updated: admin.database.ServerValue.TIMESTAMP,
       });
 
-      console.log(
-        `Données enregistrées dans Realtime Database pour ${sensorName}`
-      );
+      console.log(`Données enregistrées dans Realtime Database pour ${topic}`);
 
       // Envoyer les données vers InfluxDB
       const point = new Point("sensor_data")
