@@ -8,7 +8,7 @@ require("dotenv").config({ path: path.join(__dirname, "../InfluxDB/.env") });
 
 // Configuration InfluxDB
 const influxConfig = {
-  url: "http://localhost:8086",
+  url: "http://skyvault.local:8086",
   token: process.env.INFLUXDB_ADMIN_TOKEN,
   org: process.env.INFLUXDB_ORG,
   bucket: process.env.INFLUXDB_BUCKET,
