@@ -8,16 +8,17 @@ import webrepl
 import gc
 import machine
 import urequests
+import ujson
 
 # Configuration du WiFi
 WifiHosts = [
     {
-        'SSID': "A15 de Etienne",
-        'PASSWORD': "lustucrU"
-    },
-    {
         'SSID': "iPhone de Nathoo",
         'PASSWORD': "N397b7nh"
+    },
+    {
+        'SSID': "A15 de Etienne",
+        'PASSWORD': "lustucrU"
     }
 ]
 
@@ -220,11 +221,16 @@ def read_sensors():
             # Envoi des données système
             try:
                 stats = get_system_stats()
-                kpi_data = f"{stats['free_ram']},{stats['cpu_freq']},{stats['uptime']}"
-                print(f"Stats: {kpi_data}")
+                kpi_data_info = f"\n> RAM libre: {stats['free_ram']} octets, \n> Fréquence CPU: {stats['cpu_freq']} Hz, \n> Temps de fonctionnement: {stats['uptime']} ms"
+                print(f"Stats: {kpi_data_info}")
                 
                 if mqtt:
-                    mqtt.publish(mqtt_topics["data"], kpi_data.encode())
+                    kpi_data = {
+                        "free_ram": gc.mem_free(),
+                        "cpu_freq": machine.freq(),
+                        "uptime": time.ticks_ms()
+                    }
+                    mqtt.publish(mqtt_topics["data"], ujson.dumps(kpi_data).encode())
             except Exception as stats_err:
                 print(f"Erreur envoi stats: {stats_err}")
 
@@ -274,3 +280,4 @@ def main():
 # N'exécute pas automatiquement - sera appelé manuellement
 if __name__ == "__main__":
     main()
+
