@@ -36,8 +36,6 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh ./get-docker.sh --dry-run
 ```
 
-- **Importation de Docker Compose** : Récupérez le docker-compose.yml dans le dossier MQTT. Exécutez la commande `docker compose up`
-
 - **Configuration du Raspberry - MQTT** :
 
 Créer un dossier dans le répertoire racine, et y mettre le fichier docker-compose.yml (issu du dossier MQTT).
