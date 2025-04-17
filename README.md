@@ -11,39 +11,44 @@
 
 # I. Installation de la solution
 
-1- Clonné ce répository
+1- Clonnez ce répository
 
 2- Suivre le schéma d'installation dans le dossier **schema**.
 
-> [!WARNING] 
+> [!WARNING]
 > Pour voir le schéma ouvrez [wokwi](https://wokwi.com/projects/305568836183130690)
 > Copiez collez le fichier .json dans le **diagram.json** sur wokwi
 
 ### A. Set up raspberry
-- **Préparation de l'os** : installation de Raspbery pi os [here](https://www.raspberrypi.com/software/). Renommer l'hostname de la machine en skyvault.local        
 
-- **Installation de docker et docker compose** : 
+- **Préparation de l'os** : installation de Raspbery pi os [here](https://www.raspberrypi.com/software/). Renommer l'hostname de la machine en skyvault.local
+
+- **Installation de docker et docker compose** :
+
 ```
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh ./get-docker.sh --dry-run
 ```
-- **Importe docker compose** : Récupérer le docker-compose.yml dans le dossier MQTT. Excuter la commande ``` docker compose up ```
+
+- **Importe docker compose** : Récupérer le docker-compose.yml dans le dossier MQTT. Excuter la commande `docker compose up`
 
 ### B. Set Up ESP32
+
 - **Sur l'esp32 publisher** :
+
   - Ajouter le script esp32_pub.py dans l'esp32 (fichier dans le dossier MQTT)
-  - Ajouter la ligne ```import esp32_pub``` dans le fichier boot.py de l'esp32
+  - Ajouter la ligne `import esp32_pub` dans le fichier boot.py de l'esp32
 
 - **Sur l'esp32 subscriber** :
   - Ajouter le script esp32_pub.py dans l'esp32 (fichier dans le dossier MQTT)
-  - Ajouter la ligne ```import esp32_sub``` dans le fichier boot.py de l'esp32
+  - Ajouter la ligne `import esp32_sub` dans le fichier boot.py de l'esp32
   - Ajouter les fichier **esp32_gpio_lcd.py** et **lcd_api.py** dans l'esp32 (fichier dans le dossier library)
 
 ### C. Set Up Webrepl
 
 - **Sur l'esp32 publisher** :
   - Connectez-vous a l'esp32
-  - Dans l'interpreteur de command thonny ide utilisez cette commande : ```import webrepl_setup```
+  - Dans l'interpreteur de command thonny ide utilisez cette commande : `import webrepl_setup`
   - Definissez un mot de passe
   - Maintenant suivez ce [tuto](https://bhave.sh/micropython-webrepl-thonny/)
 
@@ -53,7 +58,7 @@ sudo sh ./get-docker.sh --dry-run
 
 - **Sur l'esp32 subscriber** :
   - Connectez-vous a l'esp32
-  - Dans l'interpreteur de command thonny ide utilisez cette commande : ```import webrepl_setup```
+  - Dans l'interpreteur de command thonny ide utilisez cette commande : `import webrepl_setup`
   - Definissez un mot de passe
   - Maintenant suivez ce [tuto](https://bhave.sh/micropython-webrepl-thonny/)
 
@@ -62,10 +67,10 @@ sudo sh ./get-docker.sh --dry-run
 > N'oubliez pas de mettre votre mot de passe.
 
 ### D. Set Up Firebase
-- **Lancer les commande suivante sur votre odinateur**: 
+
+- **Lancer les commande suivante sur votre odinateur**:
 
 ```bash
 cd MQTTtoFirebase/
 npm run install
 ```
-
