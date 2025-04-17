@@ -1,215 +1,274 @@
+"""
+ESP32 MQTT Subscriber with LCD Display
+Subscribes to sensor topics and displays values on an LCD screen
+"""
 import network
 import time
 import umqtt.simple as MQTT
-import machine
-import sys
 from machine import Pin, PWM
-from time import sleep
-from esp32_gpio_lcd import GpioLcd
+import sys
 import webrepl
-import urequests
+from esp32_gpio_lcd import GpioLcd
 
+# ===== CONFIGURATION =====
 
-contrast_pin = PWM(Pin(2))
+# LCD Configuration
+LCD_CONFIG = {
+    "rs_pin": 19,
+    "enable_pin": 23,
+    "d4_pin": 18,
+    "d5_pin": 17,
+    "d6_pin": 16,
+    "d7_pin": 15,
+    "rows": 2,
+    "cols": 16,
+    "contrast_pin": 2
+}
 
-# Configurer la fréquence et la résolution du signal PWM
-contrast_pin.freq(5000)  # 5 kHz
-contrast_pin.duty_u16(32768)
-
-# Configuration LCD
-rs_pin = Pin(19, Pin.OUT)
-enable_pin = Pin(23, Pin.OUT)
-d4_pin = Pin(18, Pin.OUT)
-d5_pin = Pin(17, Pin.OUT)
-d6_pin = Pin(16, Pin.OUT)
-d7_pin = Pin(15, Pin.OUT)
-
-# LCD dimensions
-LCD_ROWS = 2
-LCD_COLS = 16
-
-# Initialize LCD
-lcd = GpioLcd(rs_pin=rs_pin, enable_pin=enable_pin,
-              d4_pin=d4_pin, d5_pin=d5_pin,
-              d6_pin=d6_pin, d7_pin=d7_pin,
-              num_lines=LCD_ROWS, num_columns=LCD_COLS)
-
-# Configuration WiFi
-WifiHosts = [
-    {
-        'SSID': "iPhone de Nathoo",
-        'PASSWORD': "N397b7nh",
-        'connect' : True
-    },
-    {
-        'SSID': "A15 de Etienne",
-        'PASSWORD': "lustucrU",
-        'connect' : True
-    }
+# WiFi Configuration
+WIFI_NETWORKS = [
+    {"SSID": "iPhone de Nathoo", "PASSWORD": "N397b7nh", "connect": True},
+    {"SSID": "A15 de Etienne", "PASSWORD": "lustucrU", "connect": True}
 ]
 
-# Configuration MQTT
-mqtt_server = "skyvault.local"  # Remplacez par l'IP de votre broker MQTT
-mqtt_port = 1883
-mqtt_client_id = "ESP32_Subscriber"
-mqtt_topics = {
-    "humidity": b"sensors/humidity",
-    "gas": b"sensors/gas"
+# MQTT Configuration
+MQTT_CONFIG = {
+    "server": "skyvault.local",
+    "port": 1883,
+    "client_id": "ESP32_Subscriber",
+    "topics": {
+        "humidity": b"sensors/humidity",
+        "gas": b"sensors/gas"
+    }
 }
-mqtt = MQTT.MQTTClient(mqtt_client_id, mqtt_server, mqtt_port)
 
-# Threshold configuration
+# Alert Thresholds
 ALERT_THRESHOLDS = {
     "humidity": 60,
     "gas": 200
 }
 
-# Latest sensor values storage
-latest_values = {
-    "humidity": "N/A",
-    "gas": "N/A"
-}
+# Status LED
+LED_PIN = 2
 
-led = Pin(2, Pin.OUT)
+# ===== HARDWARE INITIALIZATION =====
 
+def init_lcd():
+    """Initialize LCD display and contrast"""
+    # Setup contrast PWM
+    contrast = PWM(Pin(LCD_CONFIG["contrast_pin"]))
+    contrast.freq(5000)  # 5 kHz
+    contrast.duty_u16(32768)  # 50% duty cycle
+    
+    # Initialize LCD pins
+    lcd = GpioLcd(
+        rs_pin=Pin(LCD_CONFIG["rs_pin"], Pin.OUT),
+        enable_pin=Pin(LCD_CONFIG["enable_pin"], Pin.OUT),
+        d4_pin=Pin(LCD_CONFIG["d4_pin"], Pin.OUT),
+        d5_pin=Pin(LCD_CONFIG["d5_pin"], Pin.OUT),
+        d6_pin=Pin(LCD_CONFIG["d6_pin"], Pin.OUT),
+        d7_pin=Pin(LCD_CONFIG["d7_pin"], Pin.OUT),
+        num_lines=LCD_CONFIG["rows"],
+        num_columns=LCD_CONFIG["cols"]
+    )
+    
+    return lcd, contrast
 
-# Connexion au WiFi
+# ===== STATUS INDICATOR =====
+
+def blink_led(led, count=1, on_time=0.5, off_time=0.5):
+    """Blink LED to indicate status"""
+    for _ in range(count):
+        led.on()
+        time.sleep(on_time)
+        led.off()
+        time.sleep(off_time)
+
+# ===== CONNECTIVITY =====
+
 def connect_wifi():
-    print(f"Connexion Wi-Fi...")
-    time.sleep(0.1)
+    """Connect to WiFi from the list of networks"""
+    print("Connecting to WiFi...")
+    
+    # Initialize WiFi interface
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    connected = False
-
-    # Essayer de se connecter à chaque hôte WiFi
-    for host in WifiHosts:
-        #if host['connect'] == True:
-            #wlan.ifconfig(('192.168.234.222','255.255.255.0','192.168.234.1','8.8.8.8'))
-        SSID = host['SSID']
-        PASSWORD = host['PASSWORD']
-
-        # Déconnecter d'abord si déjà connecté
+    
+    # Try each network until connected
+    for network_config in WIFI_NETWORKS:
+        ssid = network_config["SSID"]
+        password = network_config["PASSWORD"]
+        
+        # Disconnect if already connected
         if wlan.isconnected():
             wlan.disconnect()
             time.sleep(1)
-
-        wlan.connect(SSID, PASSWORD)
-        time.sleep(0.1)
-
-        max_wait = 15  # Timeout de 15 secondes
-        while max_wait > 0 and not wlan.isconnected():
-            max_wait -= 1
+        
+        print(f"Trying {ssid}...")
+        wlan.connect(ssid, password)
+        
+        # Wait for connection with timeout
+        for i in range(15):
+            if wlan.isconnected():
+                print(f"Connected to {ssid}")
+                print(f"IP: {wlan.ifconfig()[0]}")
+                return wlan
+            print(".", end="")
             time.sleep(1)
-
-        # Vérifier si la connexion a réussi
-        if wlan.isconnected():
-            print("Connexion Wi-Fi ok.")
-            connected = True
-            break  # Sortir de la boucle si connecté
     
-    if not connected:
-        # Clignoter 2 fois (long) si la connexion échoue
-        print("Echec lors de la connexion Wi-Fi")
-        led.on()
-        time.sleep(1)
-        led.off()
-        time.sleep(0.1)
-        led.on()
-        time.sleep(1)
-        led.off()
-        sys.exit()
-    return wlan
+    # If we got here, no connection was established
+    print("\nWiFi connection failed!")
+    return None
 
-# Fonction de rappel pour les messages MQTT reçus
-def mqtt_callback(topic, msg):
-    # Update values
-    topic_str = topic.decode()
-    msg_str = msg.decode()
+def connect_webrepl():
+    """Start WebREPL for remote access"""
+    try:
+        print("Starting WebREPL...")
+        webrepl.start()
+        print("WebREPL started")
+        return True
+    except Exception as e:
+        print(f"WebREPL error: {e}")
+        return False
+
+def create_mqtt_client(lcd, contrast):
+    """Create and configure MQTT client"""
+    # Store values received from MQTT
+    sensor_values = {
+        "humidity": "N/A",
+        "gas": "N/A"
+    }
     
-    if topic == mqtt_topics["humidity"]:
-        latest_values["humidity"] = msg_str
-    elif topic == mqtt_topics["gas"]:
-        latest_values["gas"] = msg_str
+    # Create MQTT client
+    client = MQTT.MQTTClient(
+        MQTT_CONFIG["client_id"],
+        MQTT_CONFIG["server"],
+        MQTT_CONFIG["port"]
+    )
+    
+    # Define callback function
+    def on_message(topic, msg):
+        # Convert bytes to strings
+        topic_str = topic.decode()
+        msg_str = msg.decode()
+        
+        # Update stored values
+        if topic == MQTT_CONFIG["topics"]["humidity"]:
+            sensor_values["humidity"] = msg_str
+        elif topic == MQTT_CONFIG["topics"]["gas"]:
+            sensor_values["gas"] = msg_str
+        
+        # Update LCD display
+        update_lcd(lcd, contrast, sensor_values)
+    
+    # Set callback
+    client.set_callback(on_message)
+    
+    return client
 
-    # Update display
+def connect_mqtt(client):
+    """Connect to MQTT broker and subscribe to topics"""
+    try:
+        print(f"Connecting to MQTT broker {MQTT_CONFIG['server']}...")
+        client.connect()
+        print("Connected to MQTT broker")
+        
+        # Subscribe to all topics
+        for topic in MQTT_CONFIG["topics"].values():
+            client.subscribe(topic)
+            print(f"Subscribed to {topic.decode()}")
+        
+        return True
+    except Exception as e:
+        print(f"MQTT connection error: {e}")
+        return False
+
+# ===== DISPLAY FUNCTIONS =====
+
+def update_lcd(lcd, contrast, values):
+    """Update LCD with current sensor values and alert status"""
+    # Clear display and reset contrast
     lcd.clear()
-    contrast_pin.duty_u16(32768)
+    contrast.duty_u16(32768)
     
-    # First line: Values display
-    lcd.putstr(f"h:{latest_values['humidity']:>3} g:{latest_values['gas']:>3}")
+    # First line: Display sensor values
+    lcd.putstr(f"h:{values['humidity']:>3} g:{values['gas']:>3}")
     
-    # Second line: Alert check
-    alert_triggered = False
-    try:
-        if int(latest_values['humidity']) > ALERT_THRESHOLDS['humidity']:
-            alert_triggered = True
-    except (ValueError, TypeError):
-        pass
-    
-    try:
-        if int(latest_values['gas']) > ALERT_THRESHOLDS['gas']:
-            alert_triggered = True
-    except (ValueError, TypeError):
-        pass
-
-    if alert_triggered:
+    # Second line: Check for alerts
+    alert_active = check_alerts(values)
+    if alert_active:
         lcd.move_to(0, 1)
         lcd.putstr("Alerte !")
 
-def connect_to_webrepl():
-    webrepl.start()
-    time.sleep(2)
+def check_alerts(values):
+    """Check if any sensor reading exceeds threshold"""
+    for sensor_type, threshold in ALERT_THRESHOLDS.items():
+        try:
+            value = float(values[sensor_type])
+            if value > threshold:
+                return True
+        except (ValueError, TypeError):
+            # Skip if value isn't a valid number
+            pass
+    return False
 
-# Fonction pour se connecter au broker MQTT
-def connect_to_mqtt_broker():
-    mqtt.set_callback(mqtt_callback)
-    try:
-        print("Connexion au broker MQTT...")
-        time.sleep(1)
-        mqtt.connect()
-        print("Connecté ! Abonnement aux topics...")
-        for topic in mqtt_topics.values():
-            mqtt.subscribe(topic)
-        print("Abonnement réussi.")
-        return mqtt
-    except Exception as e:
-        print(f"Erreur MQTT: {e}")
-        print("Arrêt du programme.")
-        for _ in range(5):
-            led.on()
-            time.sleep(0.5)
-            led.off()
-            time.sleep(0.5)
-        return None
+# ===== MAIN FUNCTION =====
 
-# Exécution principal
 def main():
+    """Main program loop"""
+    # Initialize hardware
+    status_led = Pin(LED_PIN, Pin.OUT)
+    lcd, contrast = init_lcd()
+    
     try:
-        # Conexion Wi-Fi
+        # Display startup message
+        lcd.clear()
+        lcd.putstr("Starting...")
+        
+        # Connect to WiFi
         wlan = connect_wifi()
         if not wlan:
-            print("Impossible de continuer sans connexion WiFi")
+            lcd.clear()
+            lcd.putstr("WiFi Failed!")
+            blink_led(status_led, 2, 1.0, 0.1)
             return
         
-        # Connexion WebREPL
-        connect_to_webrepl()
-
-        # Connexion MQTT
-        mqtt_client = connect_to_mqtt_broker()
-        if not mqtt_client:
-            print("Échec de la connexion MQTT. Arrêt du programme.")
+        # Update LCD
+        lcd.clear()
+        lcd.putstr("WiFi Connected")
+        time.sleep(1)
+        
+        # Start WebREPL
+        if connect_webrepl():
+            lcd.clear()
+            lcd.putstr("WebREPL Active")
+            time.sleep(1)
+        
+        # Create and connect MQTT client
+        mqtt_client = create_mqtt_client(lcd, contrast)
+        if not connect_mqtt(mqtt_client):
+            lcd.clear()
+            lcd.putstr("MQTT Failed!")
+            blink_led(status_led, 5, 0.5, 0.5)
             return
-
+        
+        # Update LCD
+        lcd.clear()
+        lcd.putstr("Waiting for data")
+        
+        # Main loop - check for messages
+        print("Monitoring MQTT messages...")
         while True:
             mqtt_client.check_msg()
             time.sleep(1)
-            print("Lecture des données sur l'ecran LCD...")
+            
     except Exception as e:
-        print(f"Erreur lors de l'éxécution: {e}")
-        led.on()
-        time.sleep(0.5)
-        led.off()
-        time.sleep(0.5)
+        # Handle general errors
+        print(f"Error: {e}")
+        lcd.clear()
+        lcd.putstr("Error! See log")
+        blink_led(status_led, 3, 0.2, 0.2)
 
+# Run the program
 if __name__ == "__main__":
     main()
