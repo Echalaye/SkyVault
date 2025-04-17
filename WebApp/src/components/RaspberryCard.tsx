@@ -16,8 +16,13 @@ import {
   Clock,
   PauseIcon,
   PlayIcon,
+  AlertTriangleIcon,
 } from "lucide-react";
 import { useTheme } from "./theme-provider";
+
+// Types de niveaux pour les capteurs
+type HumidityLevel = "low" | "moderate" | "comfortable" | "high" | "veryHigh";
+type GasLevel = "low" | "moderate" | "high";
 
 export function RaspberryCard() {
   const [raspberryData, setRaspberryData] = useState<RaspberryData | null>(
@@ -94,6 +99,119 @@ export function RaspberryCard() {
     setAutoRefresh((prev) => !prev);
   };
 
+  // Déterminer le niveau d'humidité
+  const getHumidityLevel = (humidity: number): HumidityLevel => {
+    if (humidity < 30) return "low";
+    if (humidity < 50) return "moderate";
+    if (humidity < 60) return "comfortable";
+    if (humidity < 80) return "high";
+    return "veryHigh";
+  };
+
+  // Déterminer le niveau de gaz
+  const getGasLevel = (gas: number): GasLevel => {
+    if (gas < 50) return "low";
+    if (gas < 200) return "moderate";
+    return "high";
+  };
+
+  // Obtenir le texte descriptif pour le niveau d'humidité
+  const getHumidityText = (level: HumidityLevel): string => {
+    switch (level) {
+      case "low":
+        return "Humidité faible";
+      case "moderate":
+        return "Humidité modérée";
+      case "comfortable":
+        return "Humidité confortable";
+      case "high":
+        return "Humidité élevée";
+      case "veryHigh":
+        return "Humidité très élevée";
+    }
+  };
+
+  // Obtenir le texte descriptif pour le niveau de gaz
+  const getGasText = (level: GasLevel): string => {
+    switch (level) {
+      case "low":
+        return "Concentration faible";
+      case "moderate":
+        return "Concentration modérée";
+      case "high":
+        return "Concentration élevée";
+    }
+  };
+
+  // Obtenir les couleurs pour le niveau d'humidité
+  const getHumidityColors = (level: HumidityLevel) => {
+    switch (level) {
+      case "low":
+        return {
+          bg: isDarkMode ? "bg-blue-900/30" : "bg-blue-50",
+          text: isDarkMode ? "text-blue-300" : "text-blue-700",
+          level: isDarkMode ? "text-yellow-400" : "text-yellow-600",
+        };
+      case "moderate":
+        return {
+          bg: isDarkMode ? "bg-blue-900/40" : "bg-blue-100",
+          text: isDarkMode ? "text-blue-300" : "text-blue-700",
+          level: isDarkMode ? "text-green-400" : "text-green-600",
+        };
+      case "comfortable":
+        return {
+          bg: isDarkMode ? "bg-blue-900/50" : "bg-blue-100",
+          text: isDarkMode ? "text-blue-300" : "text-blue-700",
+          level: isDarkMode ? "text-green-400" : "text-green-600",
+        };
+      case "high":
+        return {
+          bg: isDarkMode ? "bg-blue-900/60" : "bg-blue-200",
+          text: isDarkMode ? "text-blue-300" : "text-blue-700",
+          level: isDarkMode ? "text-orange-400" : "text-orange-600",
+        };
+      case "veryHigh":
+        return {
+          bg: isDarkMode ? "bg-blue-900/70" : "bg-blue-200",
+          text: isDarkMode ? "text-blue-300" : "text-blue-700",
+          level: isDarkMode ? "text-red-400" : "text-red-600",
+        };
+    }
+  };
+
+  // Obtenir les couleurs pour le niveau de gaz
+  const getGasColors = (level: GasLevel) => {
+    switch (level) {
+      case "low":
+        return {
+          bg: isDarkMode ? "bg-orange-900/30" : "bg-orange-50",
+          text: isDarkMode ? "text-orange-300" : "text-orange-700",
+          level: isDarkMode ? "text-green-400" : "text-green-600",
+        };
+      case "moderate":
+        return {
+          bg: isDarkMode ? "bg-orange-900/50" : "bg-orange-100",
+          text: isDarkMode ? "text-orange-300" : "text-orange-700",
+          level: isDarkMode ? "text-yellow-400" : "text-yellow-600",
+        };
+      case "high":
+        return {
+          bg: isDarkMode ? "bg-orange-900/70" : "bg-orange-200",
+          text: isDarkMode ? "text-orange-300" : "text-orange-700",
+          level: isDarkMode ? "text-red-400" : "text-red-600",
+        };
+    }
+  };
+
+  // Vérifier si un seuil d'alerte est dépassé
+  const isHumidityAlertThreshold = (humidity: number): boolean => {
+    return humidity > 60;
+  };
+
+  const isGasAlertThreshold = (gas: number): boolean => {
+    return gas > 200;
+  };
+
   return (
     <Card
       className={`w-full max-w-md mx-auto shadow-lg hover:shadow-xl transition-shadow ${
@@ -151,32 +269,66 @@ export function RaspberryCard() {
         ) : loading && raspberryData ? (
           // Pendant le chargement, continuer à afficher les anciennes données avec un indicateur de chargement
           <div className="space-y-4">
+            {/* Humidité - avec chargement */}
             <div
-              className={`flex items-center justify-between p-3 rounded-lg ${
-                isDarkMode ? "bg-blue-900" : "bg-blue-50"
-              } relative overflow-hidden`}
+              className={`rounded-lg relative overflow-hidden ${
+                getHumidityColors(
+                  getHumidityLevel(parseInt(raspberryData.humidity.value))
+                ).bg
+              }`}
             >
-              <div className="flex items-center">
-                <DropletIcon
-                  className={`mr-2 ${
-                    isDarkMode ? "text-blue-400" : "text-blue-500"
-                  }`}
-                  size={24}
-                />
-                <span
-                  className={`font-medium ${
-                    isDarkMode ? "text-zinc-50" : "text-zinc-900"
-                  }`}
-                >
-                  Humidité
-                </span>
-              </div>
-              <div
-                className={`text-lg font-bold ${
-                  isDarkMode ? "text-zinc-50" : "text-zinc-900"
-                }`}
-              >
-                {raspberryData.humidity.value}%
+              <div className="p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center">
+                    <DropletIcon
+                      className={`mr-2 ${
+                        isDarkMode ? "text-blue-400" : "text-blue-500"
+                      }`}
+                      size={24}
+                    />
+                    <span
+                      className={`font-medium ${
+                        isDarkMode ? "text-zinc-50" : "text-zinc-900"
+                      }`}
+                    >
+                      Humidité
+                    </span>
+                  </div>
+                  <div
+                    className={`text-lg font-bold ${
+                      isDarkMode ? "text-zinc-50" : "text-zinc-900"
+                    }`}
+                  >
+                    {raspberryData.humidity.value}%
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span
+                    className={
+                      getHumidityColors(
+                        getHumidityLevel(parseInt(raspberryData.humidity.value))
+                      ).level
+                    }
+                  >
+                    {getHumidityText(
+                      getHumidityLevel(parseInt(raspberryData.humidity.value))
+                    )}
+                  </span>
+
+                  {isHumidityAlertThreshold(
+                    parseInt(raspberryData.humidity.value)
+                  ) && (
+                    <div
+                      className={`flex items-center ${
+                        isDarkMode ? "text-amber-400" : "text-amber-600"
+                      }`}
+                    >
+                      <AlertTriangleIcon size={16} className="mr-1" />
+                      <span className="text-sm">Humidité trop élevée</span>
+                    </div>
+                  )}
+                </div>
               </div>
               <div
                 className={`absolute inset-0 flex items-center justify-center ${
@@ -191,33 +343,66 @@ export function RaspberryCard() {
               </div>
             </div>
 
+            {/* Gaz - avec chargement */}
             {raspberryData.gas && (
               <div
-                className={`flex items-center justify-between p-3 rounded-lg ${
-                  isDarkMode ? "bg-orange-900" : "bg-orange-50"
-                } relative overflow-hidden`}
+                className={`rounded-lg relative overflow-hidden ${
+                  getGasColors(getGasLevel(parseInt(raspberryData.gas.value)))
+                    .bg
+                }`}
               >
-                <div className="flex items-center">
-                  <FlameIcon
-                    className={`mr-2 ${
-                      isDarkMode ? "text-orange-400" : "text-orange-500"
-                    }`}
-                    size={24}
-                  />
-                  <span
-                    className={`font-medium ${
-                      isDarkMode ? "text-zinc-50" : "text-zinc-900"
-                    }`}
-                  >
-                    Gaz
-                  </span>
-                </div>
-                <div
-                  className={`text-lg font-bold ${
-                    isDarkMode ? "text-zinc-50" : "text-zinc-900"
-                  }`}
-                >
-                  {raspberryData.gas.value} ppm
+                <div className="p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center">
+                      <FlameIcon
+                        className={`mr-2 ${
+                          isDarkMode ? "text-orange-400" : "text-orange-500"
+                        }`}
+                        size={24}
+                      />
+                      <span
+                        className={`font-medium ${
+                          isDarkMode ? "text-zinc-50" : "text-zinc-900"
+                        }`}
+                      >
+                        Gaz
+                      </span>
+                    </div>
+                    <div
+                      className={`text-lg font-bold ${
+                        isDarkMode ? "text-zinc-50" : "text-zinc-900"
+                      }`}
+                    >
+                      {raspberryData.gas.value} ppm
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span
+                      className={
+                        getGasColors(
+                          getGasLevel(parseInt(raspberryData.gas.value))
+                        ).level
+                      }
+                    >
+                      {getGasText(
+                        getGasLevel(parseInt(raspberryData.gas.value))
+                      )}
+                    </span>
+
+                    {isGasAlertThreshold(parseInt(raspberryData.gas.value)) && (
+                      <div
+                        className={`flex items-center ${
+                          isDarkMode ? "text-amber-400" : "text-amber-600"
+                        }`}
+                      >
+                        <AlertTriangleIcon size={16} className="mr-1" />
+                        <span className="text-sm">
+                          Concentration trop élevée
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div
                   className={`absolute inset-0 flex items-center justify-center ${
@@ -244,62 +429,129 @@ export function RaspberryCard() {
           </div>
         ) : raspberryData ? (
           <div className="space-y-4">
+            {/* Humidité - sans chargement */}
             <div
-              className={`flex items-center justify-between p-3 rounded-lg ${
-                isDarkMode ? "bg-blue-900" : "bg-blue-50"
+              className={`rounded-lg overflow-hidden ${
+                getHumidityColors(
+                  getHumidityLevel(parseInt(raspberryData.humidity.value))
+                ).bg
               }`}
             >
-              <div className="flex items-center">
-                <DropletIcon
-                  className={`mr-2 ${
-                    isDarkMode ? "text-blue-400" : "text-blue-500"
-                  }`}
-                  size={24}
-                />
-                <span
-                  className={`font-medium ${
-                    isDarkMode ? "text-zinc-50" : "text-zinc-900"
-                  }`}
-                >
-                  Humidité
-                </span>
-              </div>
-              <div
-                className={`text-lg font-bold ${
-                  isDarkMode ? "text-zinc-50" : "text-zinc-900"
-                }`}
-              >
-                {raspberryData.humidity.value}%
-              </div>
-            </div>
-
-            {raspberryData.gas && (
-              <div
-                className={`flex items-center justify-between p-3 rounded-lg ${
-                  isDarkMode ? "bg-orange-900" : "bg-orange-50"
-                }`}
-              >
-                <div className="flex items-center">
-                  <FlameIcon
-                    className={`mr-2 ${
-                      isDarkMode ? "text-orange-400" : "text-orange-500"
-                    }`}
-                    size={24}
-                  />
-                  <span
-                    className={`font-medium ${
+              <div className="p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center">
+                    <DropletIcon
+                      className={`mr-2 ${
+                        isDarkMode ? "text-blue-400" : "text-blue-500"
+                      }`}
+                      size={24}
+                    />
+                    <span
+                      className={`font-medium ${
+                        isDarkMode ? "text-zinc-50" : "text-zinc-900"
+                      }`}
+                    >
+                      Humidité
+                    </span>
+                  </div>
+                  <div
+                    className={`text-lg font-bold ${
                       isDarkMode ? "text-zinc-50" : "text-zinc-900"
                     }`}
                   >
-                    Gaz
-                  </span>
+                    {raspberryData.humidity.value}%
+                  </div>
                 </div>
-                <div
-                  className={`text-lg font-bold ${
-                    isDarkMode ? "text-zinc-50" : "text-zinc-900"
-                  }`}
-                >
-                  {raspberryData.gas.value} ppm
+
+                <div className="flex justify-between items-center">
+                  <span
+                    className={
+                      getHumidityColors(
+                        getHumidityLevel(parseInt(raspberryData.humidity.value))
+                      ).level
+                    }
+                  >
+                    {getHumidityText(
+                      getHumidityLevel(parseInt(raspberryData.humidity.value))
+                    )}
+                  </span>
+
+                  {isHumidityAlertThreshold(
+                    parseInt(raspberryData.humidity.value)
+                  ) && (
+                    <div
+                      className={`flex items-center ${
+                        isDarkMode ? "text-amber-400" : "text-amber-600"
+                      }`}
+                    >
+                      <AlertTriangleIcon size={16} className="mr-1" />
+                      <span className="text-sm">Humidité trop élevée</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Gaz - sans chargement */}
+            {raspberryData.gas && (
+              <div
+                className={`rounded-lg overflow-hidden ${
+                  getGasColors(getGasLevel(parseInt(raspberryData.gas.value)))
+                    .bg
+                }`}
+              >
+                <div className="p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center">
+                      <FlameIcon
+                        className={`mr-2 ${
+                          isDarkMode ? "text-orange-400" : "text-orange-500"
+                        }`}
+                        size={24}
+                      />
+                      <span
+                        className={`font-medium ${
+                          isDarkMode ? "text-zinc-50" : "text-zinc-900"
+                        }`}
+                      >
+                        Gaz
+                      </span>
+                    </div>
+                    <div
+                      className={`text-lg font-bold ${
+                        isDarkMode ? "text-zinc-50" : "text-zinc-900"
+                      }`}
+                    >
+                      {raspberryData.gas.value} ppm
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span
+                      className={
+                        getGasColors(
+                          getGasLevel(parseInt(raspberryData.gas.value))
+                        ).level
+                      }
+                    >
+                      {getGasText(
+                        getGasLevel(parseInt(raspberryData.gas.value))
+                      )}
+                    </span>
+
+                    {isGasAlertThreshold(parseInt(raspberryData.gas.value)) && (
+                      <div
+                        className={`flex items-center ${
+                          isDarkMode ? "text-amber-400" : "text-amber-600"
+                        }`}
+                      >
+                        <AlertTriangleIcon size={16} className="mr-1" />
+                        <span className="text-sm">
+                          Concentration trop élevée
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
