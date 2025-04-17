@@ -1,33 +1,77 @@
-# main.py - Fichier principal qui sera exécuté après boot.py
+"""
+main.py - Entry point loaded automatically after boot.py
+Responsible for initializing and executing the main application
+"""
 import time
 from machine import Pin
+import gc  # Import garbage collector for memory optimization
 
-# Initialiser la LED comme indicateur
-led = Pin(2, Pin.OUT)
-print("Démarrage du programme principal...")
+# ===== CONFIGURATION =====
+LED_PIN = 2          # Built-in LED pin
+STARTUP_DELAY = 1    # Seconds to wait before starting (system stabilization)
+MODULE_NAME = "esp32_pub"  # Name of the main application module to import
 
-# Attendre un peu avant de démarrer pour stabiliser le système
-time.sleep(1)
+# ===== LED PATTERNS =====
+# Format: [(on_time, off_time), repetitions]
+LED_PATTERNS = {
+    "success": [(0.1, 0.1), 3],  # Fast blinks for success
+    "error": [(0.5, 0.2), 5]     # Slow blinks for error
+}
 
-try:
-    # Importer notre module et exécuter la fonction principale
-    import esp32_pub
-    print("Module esp32_pub importé avec succès")
+def blink_led(led, pattern_name):
+    """
+    Blink the LED according to predefined patterns
     
-    # Signaler le succès avec un clignotement rapide
-    for _ in range(3):
-        led.on()
-        time.sleep(0.1)
-        led.off()
-        time.sleep(0.1)
+    Args:
+        led: Pin object for the LED
+        pattern_name: String key for the pattern in LED_PATTERNS dictionary
+    """
+    if pattern_name in LED_PATTERNS:
+        timing, repetitions = LED_PATTERNS[pattern_name]
+        for _ in range(repetitions):
+            led.on()
+            time.sleep(timing[0])
+            led.off()
+            time.sleep(timing[1])
+
+def main():
+    """Main program entry point"""
+    # Initialize built-in LED for status indication
+    led = Pin(LED_PIN, Pin.OUT)
+    led.off()  # Ensure LED starts in OFF state
     
-    # Lancer le programme principal
-    esp32_pub.main()
-except Exception as e:
-    print(f"Erreur lors du démarrage: {e}")
-    # Signaler l'erreur avec un clignotement spécifique
-    for _ in range(5):
-        led.on()
-        time.sleep(0.5)
-        led.off()
-        time.sleep(0.2)
+    print("Starting main program...")
+    
+    # Wait for system stabilization
+    time.sleep(STARTUP_DELAY)
+    
+    try:
+        # Free memory before importing modules
+        gc.collect()
+        
+        # Dynamically import the application module
+        module = __import__(MODULE_NAME)
+        print(f"Successfully imported {MODULE_NAME} module")
+        
+        # Signal successful import
+        blink_led(led, "success")
+        
+        # Start the main application
+        print("Launching main application...")
+        module.main()
+        
+    except ImportError:
+        print(f"Error: Could not import {MODULE_NAME} module")
+        blink_led(led, "error")
+        
+    except AttributeError:
+        print(f"Error: {MODULE_NAME} module has no 'main' function")
+        blink_led(led, "error")
+        
+    except Exception as e:
+        print(f"Error during startup: {e}")
+        blink_led(led, "error")
+
+# Execute the main function
+if __name__ == "__main__":
+    main()
