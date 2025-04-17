@@ -88,7 +88,7 @@ def blink_led(led, count=1, on_time=0.5, off_time=0.5):
 
 def connect_wifi():
     """Connect to WiFi from the list of networks"""
-    print("Connecting to WiFi...")
+    print("Connecting to WiFi...\n")
     
     # Initialize WiFi interface
     wlan = network.WLAN(network.STA_IF)
@@ -104,7 +104,7 @@ def connect_wifi():
             wlan.disconnect()
             time.sleep(1)
         
-        print(f"Trying {ssid}...")
+        print(f"\nTrying {ssid}...")
         wlan.connect(ssid, password)
         
         # Wait for connection with timeout
