@@ -44,9 +44,9 @@ Une fois fait, lancer la commande `docker compose up` dans le répertoire racine
 
 Le serveur MQTT est maintenant opérationnel.
 
-- **Configuration du Raspberry - InfluxDB et Grafana** :
+- **Configuration - InfluxDB et Grafana** :
 
-Créer un dossier dans le répertoire racine, et y mettre le fichier docker-compose.yml (issu du dossier InfluxDB et Grafana) et le fichier .env (à partir du fichier .env.example).
+Mettez vous dans le dossier InfluxDB, et créez un fichier .env à partir du fichier .env.example.
 
 Une fois fait, lancer la commande `docker compose up` dans le répertoire racine.
 
